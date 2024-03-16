@@ -365,6 +365,5 @@ FodyWeavers.xsd
 .idea/
 bin/
 obj/
+.env
 waves-server.http
-appsettings.json
-appsettings.Development.json
