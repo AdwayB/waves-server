@@ -1,0 +1,20 @@
+﻿{
+  "settings": {
+    "orderingRules": {
+      "usingDirectivesPlacement": "outsideNamespace"
+    },
+    "documentationRules": {
+      "documentInterfaces": false,
+      "documentExposedElements": false
+    },
+    "layoutRules": {
+    },
+    "namingRules": {
+      "allowCommonHungarianPrefixes": true
+    },
+    "readabilityRules": {
+    },
+    "maintainabilityRules": {
+    }
+  }
+}
