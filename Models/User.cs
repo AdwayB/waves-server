@@ -3,14 +3,12 @@ using System.Text.Json.Serialization;
 
 namespace waves_server.Models;
 
-public enum UserType
-{
+public enum UserType {
     Admin,
     User
 }
 
-public class User
-{
+public class User {
     public Guid UserId { get; set; } = Guid.NewGuid();
 
     [Required]

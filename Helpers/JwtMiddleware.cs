@@ -5,21 +5,17 @@ using Microsoft.IdentityModel.Tokens;
 using waves_server.Models;
 using waves_server.Services;
 
-namespace waves_server.Helpers
-{
-    public class JwtMiddleware
-    {
+namespace waves_server.Helpers {
+    public class JwtMiddleware {
         private readonly RequestDelegate _next;
         private readonly AppSettings _appSettings;
 
-        public JwtMiddleware(RequestDelegate next, IOptions<AppSettings> appSettings)
-        {
+        public JwtMiddleware(RequestDelegate next, IOptions<AppSettings> appSettings) {
             _next = next;
             _appSettings = appSettings.Value;
         }
 
-        public async Task Invoke(HttpContext context, IUserService userService)
-        {
+        public async Task Invoke(HttpContext context, IUserService userService) {
             var token = context
                 .Request.Headers["Authorization"]
                 .FirstOrDefault()
@@ -36,16 +32,13 @@ namespace waves_server.Helpers
             HttpContext context,
             IUserService userService,
             string token
-        )
-        {
-            try
-            {
+        ) {
+            try {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(_appSettings.Key);
                 tokenHandler.ValidateToken(
                     token,
-                    new TokenValidationParameters()
-                    {
+                    new TokenValidationParameters() {
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(key),
                         ValidateIssuer = false,
@@ -60,14 +53,12 @@ namespace waves_server.Helpers
 
                 context.Items["User"] = await userService.GetById(userId);
             }
-            catch (SecurityTokenExpiredException exception)
-            {
+            catch (SecurityTokenExpiredException exception) {
                 context.Response.StatusCode = 401;
                 await context.Response.WriteAsync("Token has expired.");
                 // LogError(exception, "An error occurred processing the token: {Message}", exception.Message);
             }
-            catch
-            {
+            catch {
                 // user is not attached to context so the request won't have access to secure routes
             }
         }

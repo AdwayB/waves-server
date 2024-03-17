@@ -3,8 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace waves_server.Models;
 
-public class AuthenticateRequest
-{
+public class AuthenticateRequest {
     [Required]
     [DefaultValue("System")]
     public required string Username { get; set; } = string.Empty;
@@ -12,4 +11,8 @@ public class AuthenticateRequest
     [Required]
     [DefaultValue("System")]
     public required string Password { get; set; } = string.Empty;
+    
+    [Required]
+    [DefaultValue("user")]
+    public required string Type {get; set;} = UserType.User.ToString(); 
 }

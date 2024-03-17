@@ -6,54 +6,45 @@ namespace waves_server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UserController : ControllerBase
-{
-    private readonly IUserService _userService;
+public class UserController : ControllerBase {
+  private readonly IUserService _userService;
 
-    public UserController(IUserService userService)
-    {
-        _userService = userService;
+  public UserController(IUserService userService) {
+    _userService = userService;
+  }
+
+  [HttpPost("signup")]
+  public async Task<IActionResult> SignUp([FromBody] User request) {
+    if (!ModelState.IsValid) {
+      return BadRequest(ModelState);
     }
 
-    [HttpPost("signup")]
-    public async Task<IActionResult> SignUp([FromBody] User request)
+    try {
+      var result = await _userService.SignUp(request, request.Type == "Admin" ? UserType.Admin : UserType.User);
+      
+      if (result == null) {
+        return BadRequest("Unable to create user.");
+      }
+
+      return Ok(result);
+    }
+    catch (Exception exception)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+      return StatusCode(500, "An error occurred: " + exception.Message);
+    }
+  }
 
-        try
-        {
-            var result = await _userService.SignUp(request);
-
-            if (result == null)
-            {
-                return BadRequest("Unable to create user.");
-            }
-
-            return Ok(result);
-        }
-        catch (Exception exception)
-        {
-            return StatusCode(500, "An error occurred.");
-        }
+  [HttpPost("login")]
+  public async Task<IActionResult> Login([FromBody] AuthenticateRequest request) {
+    if (!ModelState.IsValid) {
+      return BadRequest(ModelState);
     }
 
-    [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] AuthenticateRequest request)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        var response = await _userService.Authenticate(request);
-        if (response == null)
-        {
-            return Unauthorized("Username or password is incorrect.");
-        }
-
-        return Ok(response);
+    var response = await _userService.Authenticate(request, request.Type == "Admin" ? UserType.Admin : UserType.User);
+    if (response == null) {
+      return Unauthorized("Username or password is incorrect.");
     }
+
+    return Ok(response);
+  }
 }
