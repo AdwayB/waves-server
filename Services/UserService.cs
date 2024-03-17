@@ -22,7 +22,15 @@ namespace waves_server.Services {
         throw new Exception("Username already exists.");
       }
 
-      var user = new User { Username = model.Username, Password = BCrypt.Net.BCrypt.HashPassword(model.Password), Type = type.ToString() };
+      var user = new User {
+        Username = model.Username,
+        Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
+        LegalName = model.LegalName,
+        Email = model.Email,
+        MobileNumber = model.MobileNumber,
+        Country = model.Country,
+        Type = type.ToString()
+      };
 
       await _db.Users.AddAsync(user);
       await _db.SaveChangesAsync();
@@ -68,8 +76,7 @@ namespace waves_server.Services {
       return isSuccess ? userObj : null;
     }
 
-    private async Task<string> GenerateJwtToken(User user)
-    {
+    private async Task<string> GenerateJwtToken(User user) {
       var tokenHandler = new JwtSecurityTokenHandler();
       
       var token = await Task.Run(() => {
@@ -78,12 +85,11 @@ namespace waves_server.Services {
         {
           Subject = new ClaimsIdentity(new[] {
             new Claim("userId", user.UserId.ToString()), 
-            new Claim(type: "iss", value: _appSettings.Issuer),
-            new Claim(type: "aud", value: _appSettings.Audience),
-            new Claim(type: "exp", value: _appSettings.Duration.ToString()),
             new Claim(type: "type", value: user.Type)
           }),
           Expires = DateTime.UtcNow.AddSeconds(_appSettings.Duration),
+          Issuer = _appSettings.Issuer,
+          Audience = _appSettings.Audience,
           SigningCredentials = new SigningCredentials(
             new SymmetricSecurityKey(key),
             SecurityAlgorithms.HmacSha512Signature
