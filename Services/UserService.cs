@@ -20,6 +20,9 @@ namespace waves_server.Services {
     public async Task<AuthenticateResponse?> SignUp(User model, UserType type = UserType.User) {
       if (await _db.Users.AnyAsync(u => u.Username == model.Username && u.Type == type.ToString())) {
         throw new Exception("Username already exists.");
+      } 
+      if (await _db.Users.AnyAsync(u => u.Email == model.Email && u.Type == type.ToString())) {
+        throw new Exception($"{type.ToString()} Account with this email already exists.");
       }
 
       var user = new User {
@@ -40,7 +43,7 @@ namespace waves_server.Services {
     }
 
     public async Task<AuthenticateResponse?> Authenticate(AuthenticateRequest model, UserType type = UserType.User) {
-      var user = await _db.Users.SingleOrDefaultAsync(x => x.Username == model.Username && x.Type == type.ToString());
+      var user = await _db.Users.SingleOrDefaultAsync(x => x.Email == model.Email && x.Type == type.ToString());
 
       if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
         return null;

@@ -5,8 +5,10 @@ namespace waves_server.Models;
 
 public class AuthenticateRequest {
     [Required]
-    [DefaultValue("System")]
-    public required string Username { get; set; } = string.Empty;
+    [DefaultValue("geneva.quests@gmail.com")]
+    [EmailAddress]
+    [RegularExpression(@"^[a-zA-Z0-9.+_%$#&-]+@gmail\.com$")]
+    public string Email { get; set; } = string.Empty;
    
     [Required]
     [DefaultValue("System")]
