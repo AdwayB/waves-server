@@ -2,7 +2,7 @@
 
 namespace waves_server.Services
 {
-    public interface IUserService {
+    public interface IAuthService {
         Task<AuthenticateResponse?> SignUp(User model, UserType userType);
         Task<AuthenticateResponse?> Authenticate(AuthenticateRequest model, UserType userType);
         Task<IEnumerable<User>> GetAll();

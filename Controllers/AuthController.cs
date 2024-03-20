@@ -6,11 +6,11 @@ namespace waves_server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UserController : ControllerBase {
-  private readonly IUserService _userService;
+public class AuthController : ControllerBase {
+  private readonly IAuthService _authService;
 
-  public UserController(IUserService userService) {
-    _userService = userService;
+  public AuthController(IAuthService authService) {
+    _authService = authService;
   }
 
   [HttpPost("signup")]
@@ -20,7 +20,7 @@ public class UserController : ControllerBase {
     }
 
     try {
-      var result = await _userService.SignUp(request, request.Type == "Admin" ? UserType.Admin : UserType.User);
+      var result = await _authService.SignUp(request, request.Type == "Admin" ? UserType.Admin : UserType.User);
       
       if (result == null) {
         return BadRequest("Unable to create user.");
@@ -40,7 +40,7 @@ public class UserController : ControllerBase {
       return BadRequest(ModelState);
     }
 
-    var response = await _userService.Authenticate(request, request.Type == "Admin" ? UserType.Admin : UserType.User);
+    var response = await _authService.Authenticate(request, request.Type == "Admin" ? UserType.Admin : UserType.User);
     if (response == null) {
       return Unauthorized("Username or password is incorrect.");
     }

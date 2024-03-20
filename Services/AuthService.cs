@@ -8,11 +8,11 @@ using waves_server.Helpers;
 using waves_server.Models;
 
 namespace waves_server.Services {
-  public class UserService : IUserService {
+  public class AuthService : IAuthService {
     private readonly AppSettings _appSettings;
     private readonly DatabaseContext _db;
 
-    public UserService(IOptions<AppSettings> appSettings, DatabaseContext db) {
+    public AuthService(IOptions<AppSettings> appSettings, DatabaseContext db) {
       _appSettings = appSettings.Value;
       _db = db;
     }

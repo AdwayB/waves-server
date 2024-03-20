@@ -16,7 +16,7 @@ builder
     .AddEnvironmentVariables();
 
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("Jwt"));
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerGen();
@@ -25,8 +25,6 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(connectionString));
 
 var app = builder.Build();
-
-app.UseMiddleware<JwtMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
