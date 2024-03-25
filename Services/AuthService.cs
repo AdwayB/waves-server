@@ -53,14 +53,6 @@ namespace waves_server.Services {
       return new AuthenticateResponse(user, token);
     }
 
-    public async Task<IEnumerable<User>> GetAll() {
-      return await _db.Users.Where(x => x.UserId != Guid.Empty).ToListAsync();
-    }
-
-    public async Task<User?> GetById(Guid id) {
-      return await _db.Users.FirstOrDefaultAsync(x => x.UserId == id);
-    }
-
     public async Task<User?> AddAndUpdateUser(User userObj) {
       var isSuccess = false;
       if (userObj.UserId != Guid.Empty) {
