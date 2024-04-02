@@ -2,8 +2,7 @@
 
 ## Description
 `waves-server` is an authentication microservice that provides user authentication and assigns role-based access claims 
-for `waves-ems`. 
-This service implements user signup and login, generating JWT tokens for secure sessions.
+for `waves-ems`, implementing user signup and login, and generating JWT tokens for secure sessions.
 
 ## Features
 - User Signup and Login.
