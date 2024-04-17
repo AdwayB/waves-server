@@ -8,6 +8,18 @@ namespace waves_server.Controllers;
 [ApiController]
 public class AuthController : ControllerBase {
   private readonly IAuthService _authService;
+  private static void SetCookies (AuthenticateResponse result, HttpResponse Response) {
+    var cookieOptions = new CookieOptions { 
+      HttpOnly = true,
+      Secure = true,
+      Path = "/", 
+      Expires = DateTime.UtcNow.AddDays(1), 
+      SameSite = SameSiteMode.None
+    };
+      
+    Response.Cookies.Append("jwt", result.Token, cookieOptions);
+    Response.Cookies.Append("userType", result.Type, cookieOptions);
+  } 
 
   public AuthController(IAuthService authService) {
     _authService = authService;
@@ -26,6 +38,7 @@ public class AuthController : ControllerBase {
         return BadRequest("Unable to create user.");
       }
 
+      SetCookies(result, Response);
       return Ok(result);
     }
     catch (Exception exception)
@@ -40,11 +53,11 @@ public class AuthController : ControllerBase {
       return BadRequest(ModelState);
     }
 
-    var response = await _authService.Authenticate(request, request.Type == "Admin" ? UserType.Admin : UserType.User);
-    if (response == null) {
+    var result = await _authService.Authenticate(request, request.Type == "Admin" ? UserType.Admin : UserType.User);
+    if (result == null) {
       return Unauthorized("Username or password is incorrect.");
     }
-
-    return Ok(response);
+    SetCookies(result, Response);
+    return Ok(result);
   }
 }
