@@ -19,6 +19,7 @@ public class AuthController : ControllerBase {
       
     Response.Cookies.Append("jwt", result.Token, cookieOptions);
     Response.Cookies.Append("userType", result.Type, cookieOptions);
+    Response.Cookies.Append("userId", result.UserId.ToString(), cookieOptions);
   } 
 
   public AuthController(IAuthService authService) {
