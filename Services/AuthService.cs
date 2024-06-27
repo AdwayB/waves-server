@@ -42,33 +42,20 @@ namespace waves_server.Services {
       return new AuthenticateResponse(user, token);
     }
 
-    public async Task<AuthenticateResponse?> Authenticate(AuthenticateRequest model, UserType type = UserType.User) {
+    public async Task<(AuthenticateResponse?, int)> Authenticate(AuthenticateRequest model, UserType type = UserType.User) {
       var user = await _db.Users.SingleOrDefaultAsync(x => x.Email == model.Email && x.Type == type.ToString());
 
-      if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
-        return null;
+      if (user == null) {
+        return (null, -1);
+      }
+      
+      if (!BCrypt.Net.BCrypt.Verify(model.Password, user.Password)) {
+        return (null, -2);
+      }
 
       var token = await GenerateJwtToken(user);
 
-      return new AuthenticateResponse(user, token);
-    }
-
-    public async Task<User?> AddAndUpdateUser(User userObj) {
-      var isSuccess = false;
-      if (userObj.UserId != Guid.Empty) {
-        var obj = await _db.Users.FirstOrDefaultAsync(c => c.UserId == userObj.UserId);
-        
-        if (obj != null) {
-          _db.Users.Update(obj);
-          isSuccess = await _db.SaveChangesAsync() > 0;
-        }
-      }
-      else {
-        await _db.Users.AddAsync(userObj);
-        isSuccess = await _db.SaveChangesAsync() > 0;
-      }
-
-      return isSuccess ? userObj : null;
+      return (new AuthenticateResponse(user, token), 0);
     }
 
     private async Task<string> GenerateJwtToken(User user) {

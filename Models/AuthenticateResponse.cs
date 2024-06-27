@@ -1,16 +1,12 @@
 ﻿namespace waves_server.Models;
 
 public class AuthenticateResponse {
-    public Guid UserId { get; set; }
-    public string Username { get; set; }
-    public string Type { get; set; }
+    public User User { get; set; }
     public string Token { get; set; }
 
 
     public AuthenticateResponse(User user, string token) {
-        UserId = user.UserId;
-        Username = user.Username;
-        Type = user.Type;
+        User = user;
         Token = token;
     }
 }

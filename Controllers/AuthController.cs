@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 using waves_server.Models;
 using waves_server.Services;
 
@@ -18,8 +19,7 @@ public class AuthController : ControllerBase {
     };
       
     Response.Cookies.Append("jwt", result.Token, cookieOptions);
-    Response.Cookies.Append("userType", result.Type, cookieOptions);
-    Response.Cookies.Append("userId", result.UserId.ToString(), cookieOptions);
+    Response.Cookies.Append("user", JsonSerializer.Serialize(result.User), cookieOptions);
   } 
 
   public AuthController(IAuthService authService) {
@@ -55,10 +55,16 @@ public class AuthController : ControllerBase {
     }
 
     var result = await _authService.Authenticate(request, request.Type == "Admin" ? UserType.Admin : UserType.User);
-    if (result == null) {
-      return Unauthorized("Username or password is incorrect.");
+    
+    if (result.Item2 == -2) {
+      return Unauthorized("Incorrect Password.");
     }
-    SetCookies(result, Response);
-    return Ok(result);
+    
+    if (result.Item1 == null) {
+      return NotFound("User not Found.");
+    }
+    
+    SetCookies(result.Item1, Response);
+    return Ok(result.Item1);
   }
 }
