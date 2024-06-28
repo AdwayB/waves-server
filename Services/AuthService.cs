@@ -17,12 +17,12 @@ namespace waves_server.Services {
       _db = db;
     }
 
-    public async Task<AuthenticateResponse?> SignUp(User model, UserType type = UserType.User) {
+    public async Task<(AuthenticateResponse?, int)> SignUp(User model, UserType type = UserType.User) {
       if (await _db.Users.AnyAsync(u => u.Username == model.Username && u.Type == type.ToString())) {
-        throw new Exception("Username already exists.");
+        return (null, -2);
       } 
       if (await _db.Users.AnyAsync(u => u.Email == model.Email && u.Type == type.ToString())) {
-        throw new Exception($"{type.ToString()} Account with this email already exists.");
+        return (null, -1);
       }
 
       var user = new User {
@@ -39,7 +39,7 @@ namespace waves_server.Services {
       await _db.SaveChangesAsync();
 
       var token = await GenerateJwtToken(user);
-      return new AuthenticateResponse(user, token);
+      return (new AuthenticateResponse(user, token), 0);
     }
 
     public async Task<(AuthenticateResponse?, int)> Authenticate(AuthenticateRequest model, UserType type = UserType.User) {

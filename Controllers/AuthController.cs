@@ -10,16 +10,19 @@ namespace waves_server.Controllers;
 public class AuthController : ControllerBase {
   private readonly IAuthService _authService;
   private static void SetCookies (AuthenticateResponse result, HttpResponse Response) {
-    var cookieOptions = new CookieOptions { 
+    Response.Cookies.Append("jwt", result.Token, new CookieOptions { 
       HttpOnly = true,
       Secure = true,
       Path = "/", 
       Expires = DateTime.UtcNow.AddDays(1), 
       SameSite = SameSiteMode.None
-    };
-      
-    Response.Cookies.Append("jwt", result.Token, cookieOptions);
-    Response.Cookies.Append("user", JsonSerializer.Serialize(result.User), cookieOptions);
+    });
+    Response.Cookies.Append("user", JsonSerializer.Serialize(result.User), new CookieOptions { 
+      Secure = true,
+      Path = "/", 
+      Expires = DateTime.UtcNow.AddDays(1), 
+      SameSite = SameSiteMode.None
+    });
   } 
 
   public AuthController(IAuthService authService) {
@@ -35,11 +38,18 @@ public class AuthController : ControllerBase {
     try {
       var result = await _authService.SignUp(request, request.Type == "Admin" ? UserType.Admin : UserType.User);
       
-      if (result == null) {
-        return BadRequest("Unable to create user.");
+      switch (result.Item2) {
+        case -2:
+          return BadRequest("User with this username already exists.");
+        case -1:
+          return BadRequest("User with this email already exists.");
       }
 
-      SetCookies(result, Response);
+      if (result.Item1 == null) {
+        return StatusCode(500, "An error occurred: " + result.Item1);
+      }
+
+      SetCookies(result.Item1, Response);
       return Ok(result);
     }
     catch (Exception exception)

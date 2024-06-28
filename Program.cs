@@ -1,6 +1,7 @@
 using dotenv.net;
 using Microsoft.EntityFrameworkCore;
 using waves_server.Helpers;
+using waves_server.Middleware;
 using waves_server.Models;
 using waves_server.Services;
 
@@ -21,6 +22,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+  options.AddPolicy("AllowLocalhost3000", policyBuilder =>
+  {
+    policyBuilder.WithOrigins("http://localhost:3000")
+      .AllowAnyHeader()
+      .AllowAnyMethod()
+      .AllowCredentials();
+  });
+});
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(connectionString));
 
@@ -33,6 +45,8 @@ if (app.Environment.IsDevelopment()) {
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowLocalhost3000");
+app.UseMiddleware<AuthInterceptor>();
 app.UseAuthentication(); // Use authentication
 app.UseAuthorization();
 
