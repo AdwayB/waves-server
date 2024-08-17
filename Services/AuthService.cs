@@ -57,6 +57,12 @@ namespace waves_server.Services {
 
       return (new AuthenticateResponse(user, token), 0);
     }
+    
+    public async Task<(string, int)> Logout(AuthenticateRequest model, UserType type = UserType.User) {
+      var user = await _db.Users.SingleOrDefaultAsync(x => x.Email == model.Email && x.Type == type.ToString());
+
+      return user == null ? (string.Empty, -1) : ("valid", 1);
+    }
 
     private async Task<string> GenerateJwtToken(User user) {
       var tokenHandler = new JwtSecurityTokenHandler();

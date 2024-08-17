@@ -5,5 +5,6 @@ namespace waves_server.Services
     public interface IAuthService {
         Task<(AuthenticateResponse?, int)> SignUp (User model, UserType userType);
         Task<(AuthenticateResponse?, int)> Authenticate (AuthenticateRequest model, UserType userType);
+        Task<(string, int)> Logout (AuthenticateRequest model, UserType userType);
     }
 }

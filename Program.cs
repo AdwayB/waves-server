@@ -19,7 +19,7 @@ builder
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddEndpointsApiExplorer();  
 // builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>

@@ -9,20 +9,18 @@ namespace waves_server.Controllers;
 [ApiController]
 public class AuthController : ControllerBase {
   private readonly IAuthService _authService;
+
+  private static readonly CookieOptions defaultCookieOptions = new() {
+    HttpOnly = true,
+    Secure = true,
+    Path = "/",
+    Expires = DateTime.UtcNow.AddDays(1),
+    SameSite = SameSiteMode.None
+  };
+  
   private static void SetCookies (AuthenticateResponse result, HttpResponse Response) {
-    Response.Cookies.Append("jwt", result.Token, new CookieOptions { 
-      HttpOnly = true,
-      Secure = true,
-      Path = "/", 
-      Expires = DateTime.UtcNow.AddDays(1), 
-      SameSite = SameSiteMode.None
-    });
-    Response.Cookies.Append("user", JsonSerializer.Serialize(result.User), new CookieOptions { 
-      Secure = true,
-      Path = "/", 
-      Expires = DateTime.UtcNow.AddDays(1), 
-      SameSite = SameSiteMode.None
-    });
+    Response.Cookies.Append("jwt", result.Token, defaultCookieOptions);
+    Response.Cookies.Append("user", JsonSerializer.Serialize(result.User), defaultCookieOptions);
   } 
 
   public AuthController(IAuthService authService) {
@@ -76,5 +74,23 @@ public class AuthController : ControllerBase {
     
     SetCookies(result.Item1, Response);
     return Ok(result.Item1);
+  }
+  
+  [HttpPost("logout")]
+  public async Task<IActionResult> Logout([FromBody] AuthenticateRequest request) {
+    if (!ModelState.IsValid) {
+      return BadRequest(ModelState);
+    }
+
+    var result = await _authService.Logout(request, request.Type == "Admin" ? UserType.Admin : UserType.User);
+    
+    switch (result.Item2) {
+      case -1:
+        return NotFound("User not Found.");
+      default:
+        Response.Cookies.Delete("jwt", defaultCookieOptions);
+        Response.Cookies.Delete("user", defaultCookieOptions);
+        return Ok(new{ message = "Logged out successfully" });
+    }
   }
 }
